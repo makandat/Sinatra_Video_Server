@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Sinatra ビデオサーバ v4.0.1</title>
+    <link rel="stylesheet" href="style.css" />
+    <script>
+      async function video_display() {
+        const path = document.getElementById("filename").value
+        const url = "/path?path=" + path
+        if (path.endsWith('.mp4')) {
+          // mp4 ファイルのとき
+          open(url, "_blank")
+        }
+        else {
+          // それ以外はフォルダとして動画ファイル一覧を得る。
+          const res = await fetch(url)
+          const filelist = await res.json()
+          let html = ""
+          for (const item of filelist) {
+            const url = "/path?path=" + `${path}/${item}`
+            html += `<li><a href="${url}" target="_blank">${item}</a></li>\n`
+          }
+          const files = document.getElementById('files')
+          files.innerHTML = html
+        }
+      }
+    </script>
+  </head>
+
+  <body>
+    <article>
+      <h1>Sinatra ビデオサーバ v4.0.1</h1>
+      <p><a href="/">[ RESET ]</a>&nbsp;|&nbsp;<a href="/edit" target="_blank">[folder.txt を編集する]</a></p>
+      <form action="javascript:video_display()">
+        <div class="form_row"><label for="filename">動画ファイル (.mp4) またはフォルダ</label><br /><input type="text" id="filename" size="100" value="<%= @path %>"></div>
+        <div style="margin-top:16px;margin-bottom:12px;margin-left:5%;"><button> ビデオを再生する </button></div>
+      </form>
+      <ul id="files"></ul>
+      <div style="margin-left:4%; color:crimson; font-size:1.2em;"><%= @message %></div>
+      <h3 style="color:deepskyblue;">Help</h3>
+      <p>テキストボックス には動画ファイルの場合は mp4 ファイルのみ入力可能。これはフルパスで folders.txt は使用しない。<br />
+      または動画ファイル(.mp4) を含むフォルダも指定可能 (v3.0から)。フォルダの場合はそこに含まれる .mp4 ファイルを手動で順に再生する。</p>
+      <p>"folders.txt" には複数のディレクトリを指定可能で、最初にディレクトリ + "/" + ファイル名が実在した場合、そのファイルが再生される。<br />
+このサーバの "folders.txt" の具体的な場所は C:\workspace\Web\Sinatra\2025\video_server\folders.txt である。</p>
+      <h3 style="color:deepskyblue;">folders.txt</h3>
+      <ul style="margin-left:4%;"><%= @files%></ul>
+      <br />
+      <ul><%= @folders %></ul>
+    </article>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+  </body>
+</html>
